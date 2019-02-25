@@ -1,5 +1,5 @@
 import React from 'react';
-import { ScrollView, Dimensions, Animated, View } from 'react-native'
+import { ScrollView, Dimensions, Animated, View, Easing } from 'react-native'
 import { SafeAreaView  } from "react-navigation";
 import { withTheme, Text } from 'react-native-paper';
 import HomeScreenHeader from './HomeScreenHeader';
@@ -13,6 +13,10 @@ class HomeScreen extends React.Component {
     constructor(props){
         super(props);
         theme = this.props.theme;
+        this.state = {
+            contentAreaAnimation: new Animated.Value(0),
+            scrollEnabled: true
+        } 
     }
 
     componentDidMount(){
@@ -22,6 +26,30 @@ class HomeScreen extends React.Component {
     theme = null;
     _scrollView = null;
     scrollPostionY = new Animated.Value(0);
+
+    openGrouperArea() {
+        Animated.timing(
+            this.state.contentAreaAnimation,
+            {
+                toValue: 1,
+                duration: 500,
+                easing: Easing.out(Easing.cubic),
+                useNativeDriver: true,
+            }
+        ).start(this.setState({ scrollEnabled: false }))
+    }
+
+    closeGrouperArea() {
+        Animated.timing(
+            this.state.contentAreaAnimation,
+            {
+                toValue: 0,
+                duration: 500,
+                easing: Easing.out(Easing.cubic),
+                useNativeDriver: true,
+            }
+        ).start(this.setState({ scrollEnabled: true }))
+    }
 
     onScrollEndSnapToEdge(ev) {
         const y = ev.nativeEvent.contentOffset.y;
@@ -53,10 +81,7 @@ class HomeScreen extends React.Component {
                     scrollPostionY={this.scrollPostionY}
                 />
                 <Animated.ScrollView
-                    // style={{
-                    //     flex: 1,
-                    //     height: 660
-                    // }}
+                    scrollEnabled={this.state.scrollEnabled}
                     ref={scrollView => {
                         _scrollView = scrollView ? scrollView._component : null;
                     }}
@@ -74,7 +99,8 @@ class HomeScreen extends React.Component {
                     )}
                 >
                     <HomeScreenGrouperArea
-                        
+                        openGrouperArea={this.openGrouperArea.bind(this)}
+                        closeGrouperArea={this.closeGrouperArea.bind(this)}
                         style={{
                             transform: [
                                 {
@@ -85,9 +111,34 @@ class HomeScreen extends React.Component {
                     />
                     <HomeSalesScreen 
                         scrollPostionY={this.scrollPostionY}
+                        style={{
+                            transform: [
+                                {
+                                    translateY: this.state.contentAreaAnimation.interpolate({
+                                        inputRange: [0, 1],
+                                        outputRange: [0, (theme.screen.height - theme.homeHGrouperAreaHeight) - 150],
+                                        extrapolate: "clamp"
+                                    })
+                                }
+                            ]
+                        }}
                     />
                 </Animated.ScrollView>
-                <HomeScreenMenuArea/>
+                <Animated.View
+                    style={{
+                        transform: [
+                            {
+                                translateY: this.state.contentAreaAnimation.interpolate({
+                                    inputRange: [0, 1],
+                                    outputRange: [0, 150],
+                                    extrapolate: "clamp"
+                                })
+                            }
+                        ]
+                    }}
+                >
+                    <HomeScreenMenuArea/>
+                </Animated.View>
             </SafeAreaView>
         )
     }

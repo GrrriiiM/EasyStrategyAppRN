@@ -4,11 +4,16 @@ import { TouchableRipple, IconButton, Text, withTheme } from "react-native-paper
 
 
 class HomeScreenGrouperButton extends React.Component {
+
+    onPress(){
+        this.props.onPress && this.props.onPress();
+    }
+
     render() {
         const { theme } = this.props;
         return (
             <TouchableRipple
-                onPress={() => console.log('Pressed')}
+                onPress={this.onPress.bind(this)}
                 style={{
                     backgroundColor: theme.colors.primary,
                 }}

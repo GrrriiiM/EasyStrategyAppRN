@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Animated, Easing } from 'react-native';
+import { View, Animated, Easing, ScrollView } from 'react-native';
 import { withTheme, Card, Text, Headline, Surface, TouchableRipple, IconButton } from 'react-native-paper';
 import HomeScreenMenuOptionMenu from './HomeScreenMenuOptionMenu';
 
@@ -13,7 +13,7 @@ class HomeScreenMenuArea extends React.Component {
             button2Selected: false,
             button3Selected: false,
             button4Selected: false,
-            topPostion: new Animated.Value(-150)
+            showAnimation: new Animated.Value(0)
         }
     }
     
@@ -22,26 +22,27 @@ class HomeScreenMenuArea extends React.Component {
 
     openMenu() {
         Animated.timing(
-            this.state.topPostion,
+            this.state.showAnimation,
             {
-                toValue: this.maxTopPosition,
-                duration: 350,
+                toValue: 1,
+                duration: 500,
                 easing: Easing.out(Easing.cubic),
                 useNativeDriver: true,
             }
-        ).start();
+        ).start()
     }
 
     closeMenu() {
         Animated.timing(
-            this.state.topPostion,
+            this.state.showAnimation,
             {
-                toValue: this.minTopPosition,
-                duration: 350,
+                toValue: 0,
+                duration: 500,
                 easing: Easing.out(Easing.cubic),
                 useNativeDriver: true,
+                delay: 0
             }
-        ).start();
+        ).start()
     }
 
     render() {
@@ -50,8 +51,13 @@ class HomeScreenMenuArea extends React.Component {
         return (
             <Animated.View
                 style={{
+                    ...this.props.style,
                     transform: [
-                        { translateY: this.state.topPostion }
+                        { translateY: this.state.showAnimation.interpolate({
+                            inputRange: [0.2, 0.8],
+                            outputRange: [this.minTopPosition, this.maxTopPosition],
+                            extrapolate: "clamp"
+                        }) }
                     ]
                 }}
             >
@@ -64,16 +70,16 @@ class HomeScreenMenuArea extends React.Component {
                         backgroundColor: "#000000",
                         transform: [
                             {
-                                translateY: this.state.topPostion.interpolate({
-                                    inputRange: [this.minTopPosition - 1, this.minTopPosition],
-                                    outputRange: [this.maxTopPosition, 0],
+                                translateY: this.state.showAnimation.interpolate({
+                                    inputRange: [0, 0.1],
+                                    outputRange: [0, this.maxTopPosition],
                                     extrapolate: "clamp"
                                 })
                             }
                         ],
-                        opacity: this.state.topPostion.interpolate({
-                            inputRange: [this.maxTopPosition, this.minTopPosition],
-                            outputRange: [0.8, 0],
+                        opacity: this.state.showAnimation.interpolate({
+                            inputRange: [0, 0.6],
+                            outputRange: [0, 0.8],
                             extrapolate: "clamp"
                         })
                     }}
@@ -151,13 +157,18 @@ class HomeScreenMenuArea extends React.Component {
                             height: this.props.theme.screen.height,
                             transform: [
                                 {
-                                    translateY: this.state.topPostion.interpolate({
-                                        inputRange: [this.maxTopPosition, this.maxTopPosition/3],
-                                        outputRange: [0, 500],
+                                    translateY: this.state.showAnimation.interpolate({
+                                        inputRange: [0.4, 1],
+                                        outputRange: [700, 0],
                                         extrapolate: "clamp"
                                     })
                                 }
                             ],
+                            opacity: this.state.showAnimation.interpolate({
+                                inputRange: [0.4, 1],
+                                outputRange: [0, 1],
+                                extrapolate: "clamp"
+                            })
                         }}
                     >
                         <View 
@@ -184,6 +195,28 @@ class HomeScreenMenuArea extends React.Component {
                                     EasyStrategy
                             </Headline>
                         </View>
+                        <ScrollView>
+                            <View
+                                style={{
+                                    justifyContent: "center",
+                                    alignItems: "center"
+                                }}
+                            >
+                                {
+                                    [...Array(20).keys()].map((index) => 
+                                        <Headline 
+                                            key={index}
+                                            style={{
+                                                color: "#FFFFFF", 
+                                                paddingTop: 10
+                                            }}
+                                        >
+                                            Menu Opcao EasyStrategy
+                                        </Headline>
+                                    )
+                                }
+                            </View>
+                        </ScrollView>
                     </Animated.View>     
                 </Surface>
             </Animated.View>

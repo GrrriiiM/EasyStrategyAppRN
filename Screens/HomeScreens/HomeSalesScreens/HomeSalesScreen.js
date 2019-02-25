@@ -18,6 +18,9 @@ class HomeSalesScreen extends React.Component {
                 option="Hoje"
                 optionIconName="keyboard-arrow-down"
                 scrollPostionY={this.props.scrollPostionY}
+                style={{
+                    ...this.props.style
+                }}
             >
                 <View
                     style={{

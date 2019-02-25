@@ -14,7 +14,11 @@ class HomeScreenContentArea extends React.Component {
         const { theme } = this.props;
 
         return (
-            <View>
+            <Animated.View
+                style={{
+                    ...this.props.style
+                }}
+            >
                 <HomeScreenContentAreaHeader
                     title={this.props.title}
                     option={this.props.option}
@@ -31,7 +35,7 @@ class HomeScreenContentArea extends React.Component {
                 >
                     {this.props.children}
                 </View>
-            </View>
+            </Animated.View>
         )
     }
 }
